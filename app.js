@@ -1,9 +1,17 @@
+const {globalVariables} = require('./config/configuration');
+// const helpers = require('handlebars-helpers');
+
+// const select = require('handlebars_helpers');
+// const {selectOption} = require('./config/customFunctions');
 const express = require('express');
 const mongoose = require('mongoose');
 const path = require('path');
 const hbss = require('express-handlebars');
 const {mongodburl} = require('./config/configuration')
 const {PORT} = require('./config/configuration')
+const flash = require('connect-flash');
+const session = require('express-session');
+const methodOverride = require('method-override');
 // hbs is used for setting view engine
 // const means its never gonna 
 // mongoose is an odm which helps in objec database modelling to model your app data(to interact with db)
@@ -16,18 +24,32 @@ mongoose.connect(mongodburl, {useNewUrlParser: true})
     .then(response => {
         console.log("mongodb connected successfully.");
     }).catch(er => {
-        console.log("database connection failed.");
+        console.log("database connection failed." + er);
     })
 // 
 
 
 // setup view engine to use handlebars
-app.engine('handlebars', hbss.engine({defaultLayout: 'default'}));
+app.engine('handlebars', hbss.engine({defaultLayout: 'default', runtimeOptions: {allowProtoPropertiesByDefault: true, allowProtoMethodsByDefault: true}}));
 app.set('view engine', 'handlebars');
 
 
 
+/*  Flash and Session*/
+app.use(session({
+    secret: 'anysecret',
+    saveUninitialized: true,
+    resave: true
+}));
 
+app.use(flash());
+
+
+/* Use Global Variables */
+app.use(globalVariables);
+
+
+app.use(methodOverride('newMethod'));
 
 
 
